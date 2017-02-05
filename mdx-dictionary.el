@@ -3,7 +3,7 @@
 ;; Copyright © 2017 DarkSun
 
 ;; Author: DarkSun <lujun9972@gmail.com>
-;; URL: https://github.com/lujun9972/mdx-dictionary
+;; URL: https://github.com/lujun9972/mdx-dictionary.el
 ;; Package-Requires: ((popup "0.5.0")(request "0.2.0"))
 ;; Version: 0.1
 ;; Keywords: convenience, Chinese, dictionary
