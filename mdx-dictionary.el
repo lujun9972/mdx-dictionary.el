@@ -57,7 +57,7 @@
     (delete-process mdx-dictionary-server-process)
     (setq mdx-dictionary-server-process nil)))
 
-(defun mdx-dictionary-quest (word)
+(defun mdx-dictionary-request (word)
   (let* ((url (format "http://localhost:8000/%s" word))
          (response (request url
                             :sync t
