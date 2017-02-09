@@ -58,7 +58,7 @@
     (setq mdx-dictionary-server-process nil)))
 
 (defun mdx-dictionary-request (word)
-  (let* ((url (format "http://localhost:8000/%s" word))
+  (let* ((url (format "http://localhost:8000/%s" (url-hexify-string word)))
          (response (request url
                             :sync t
                             :parser (lambda ()
