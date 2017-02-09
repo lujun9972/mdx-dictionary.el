@@ -65,11 +65,15 @@
                                       (let ((html (decode-coding-string (buffer-string) 'utf-8)))
                                         (erase-buffer)
                                         (insert html)
-                                        ;; (libxml-parse-html-region (point-min) (point-max))
-                                        (shr-render-region (point-min) (point-max))
-                                        (buffer-substring-no-properties (point-min) (point-max))
+                                        (libxml-parse-html-region (point-min) (point-max))
                                         ))) ))
     (request-response-data response)))
+
+(defcustom mdx-dictionary-format-dom-function (lambda (dom)
+                                       (with-temp-buffer
+                                         (shr-insert-document dom)
+                                         (buffer-substring-no-properties (point-min) (point-max))))
+  "function used to format dom into string")
 
 (defun mdx-dictionary-query (&optional word)
   (interactive)
@@ -77,7 +81,7 @@
                    (and (use-region-p) (buffer-substring-no-properties (region-beginning) (region-end)))
                    (word-at-point))) 
          )
-    (popup-tip (mdx-dictionary-request word))))
+    (popup-tip (funcall mdx-dictionary-format-dom-function (mdx-dictionary-request word)))))
 
 ;; (setq ele (mdx-dictionary-request "hello"))
 ;; (ds-get-text (ds-find ele "span" '((class . "phone"))))
