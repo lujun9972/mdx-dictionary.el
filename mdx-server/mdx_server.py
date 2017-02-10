@@ -92,10 +92,12 @@ def application(environ, start_response):
 
 
 # 新线程执行的代码
-def loop():
+def loop(port=8000):
     # 创建一个服务器，IP地址为空，端口是8000，处理函数是application:
-    httpd = make_server('', 8000, application)
-    print("Serving HTTP on port 8000...")
+    if not port:
+        port = 8000
+    httpd = make_server('', port, application)
+    print("Serving HTTP on port {}...".format(port))
     # 开始监听HTTP请求:
     httpd.serve_forever()
 
@@ -103,6 +105,7 @@ if __name__ == '__main__':
     import argparse
     parser = argparse.ArgumentParser()
     parser.add_argument("-i", dest="ignorecase", action="store_false", help="search without case distinction")
+    parser.add_argument("-p", dest="port", type=int,help="specify listenning port")
     parser.add_argument("filenames", nargs='*', help="mdx file name")
     args = parser.parse_args()
 
@@ -123,6 +126,6 @@ if __name__ == '__main__':
     if not all((os.path.exists(filename) for filename in args.filenames)):
         print("Please specify a valid MDX/MDD file")
     else:
-        builders = list((IndexBuilder(file) for file in  args.filenames))
-        t = threading.Thread(target=loop, args=())
+        builders = [IndexBuilder(file) for file in  args.filenames]
+        t = threading.Thread(target=loop, args=(args.port,))
         t.start()

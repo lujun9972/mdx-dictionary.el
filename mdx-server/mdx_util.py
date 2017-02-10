@@ -42,9 +42,11 @@ def get_definition_mdx(word, builder,ignorecase=None):
 
 def get_definitions_mdx(word, builders,ignorecase=None):
     """根据关键字得到MDX词典的解释"""
-    print('contents=',list(builders))
-    contents = (builder.mdx_lookup(word,ignorecase) for builder in builders)
-    content = reduce(lambda x,y:x+y,contents,[])
+    content = []
+    for builder in builders:
+        content = builder.mdx_lookup(word,ignorecase)
+        if content:             # 只显示最先找到的定义
+            break
     return mdx_content_to_output(content)
 
 def mdd_content_to_output(content):
@@ -62,6 +64,9 @@ def get_definition_mdd(word, builder,ignorecase=None):
 def get_definitions_mdd(word, builders,ignorecase=None):
     """根据关键字得到MDX词典的媒体"""
     word = word.replace("/","\\")
-    contents = (builder.mdd_lookup(word,ignorecase) for builder in builders)
-    content = reduce(lambda x,y:x+y,contents,[])
+    content = []
+    for builder in builders:
+        content = builder.mdd_lookup(word,ignorecase)
+        if content:             # 只显示最先找到的定义
+            break
     return mdd_content_to_output(content)
