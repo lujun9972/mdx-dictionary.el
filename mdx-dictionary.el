@@ -80,8 +80,11 @@
   (let* ((word (or word
                    (and (use-region-p) (buffer-substring-no-properties (region-beginning) (region-end)))
                    (word-at-point))) 
-         )
-    (popup-tip (funcall mdx-dictionary-format-dom-function (mdx-dictionary-request word)))))
+         (response (mdx-dictionary-request word)))
+    (if response
+        (popup-tip (funcall mdx-dictionary-format-dom-function response))
+      (setq word (read-string "该单词可能是变体,请输入词源(按C-g退出): " word))
+      (mdx-dictionary-query word))))
 
 ;; (setq ele (mdx-dictionary-request "hello"))
 ;; (ds-get-text (ds-find ele "span" '((class . "phone"))))
