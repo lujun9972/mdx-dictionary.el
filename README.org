@@ -1,0 +1,21 @@
+#+TITLE: README
+#+AUTHOR: lujun9972
+#+TAGS: mdx-dictionary
+#+DATE: [2017-02-09 Thu 22:12]
+#+LANGUAGE:  zh-CN
+#+OPTIONS:  H:6 num:nil toc:t \n:nil ::t |:t ^:nil -:nil f:t *:t <:nil
+* Usage
+
+1. 首先,你需要启动 [[https://github.com/ninja33/mdx-server][mdx-server]]
+
+   为了方便,我已将经 =mdx-server= 内置于repo中了. 因此你只需要执行 =M-x mdx-dictionary-start-server= 然后选择一个mdx文件就行了.
+   
+   当然为了方便,我也在仓库中内置了一个mdx字典,不过你完全可以选择自己系统的字典.
+   
+   *需要注意:mdx-server启动时要监听8000端口,因此请确定该端口没有被占用*
+
+2. 将光标放置在要查询的单词上,或者高亮选中要训的词组
+
+3. 执行 =M-x mdx-dictionary-query=. 如果顺利地话就会弹出单词的解释了.
+
+4. 执行 =M-x mdx-dictionary-stop-server= 关闭 =mdx-server=
