@@ -75,21 +75,24 @@
                                          (buffer-substring-no-properties (point-min) (point-max))))
   "function used to format dom into string")
 
+(defcustom mdx-dictionary-display-before-functions nil
+  "List of hook functions run before display the dictionary content."
+  :type 'hook)
+
 (defun mdx-dictionary-query (&optional word)
   (interactive)
   (let* ((word (or word
                    (and (use-region-p) (buffer-substring-no-properties (region-beginning) (region-end)))
                    (word-at-point))) 
-         (response (mdx-dictionary-request word)))
-    (if response
-        (popup-tip (funcall mdx-dictionary-format-dom-function response))
+         (response (mdx-dictionary-request word))
+         (content (when response
+                    (funcall mdx-dictionary-format-dom-function response))))
+    (if content
+        (progn
+          (run-hook-with-args 'mdx-dictionary-display-before-functions content)
+          (popup-tip content))
       (setq word (read-string "该单词可能是变体,请输入词源(按C-g退出): " word))
       (mdx-dictionary-query word))))
 
-;; (setq ele (mdx-dictionary-request "hello"))
-;; (ds-get-text (ds-find ele "span" '((class . "phone"))))
-;; (mapcar (lambda (i-node)
-;;           (ds-get-text i-node)) (mapcan (lambda (trs-node)
-;;                                           (ds-findAll trs-node "span" '((class . "i")) nil )) (ds-findAll ele "span" '((class . "trs")))))
 
 
