@@ -31,17 +31,18 @@
 (require 'popup)
 
 (defgroup mdx-dictionary nil
-  "dictionary based on mdx-server")
+  "dictionary based on mdx-server"
+  :prefix "mdx-dictionary-"
+  :group 'tools
+  :link '(url-link :tag "Github" "https://github.com/lujun9972/mdx-dictionary.el"))
 
 (defcustom mdx-dictionary-server-file (concat (file-name-directory buffer-file-name) "mdx-server/mdx_server.py")
   "mdx-server execution file"
-  :type '(file :must-match t)
-  :group 'mdx-dictionary)
+  :type '(file :must-match t))
 
 (defcustom mdx-dictionary-python "python3"
   "python used to start mdx-server"
-  :type 'string
-  :group 'mdx-dictionary)
+  :type 'string)
 
 (defvar mdx-dictionary-server-process nil)
 
