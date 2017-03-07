@@ -33,18 +33,16 @@
 (defgroup mdx-dictionary nil
   "dictionary based on mdx-server")
 
+(defcustom mdx-dictionary-server-file (concat (file-name-directory buffer-file-name) "mdx-server/mdx_server.py")
+  "mdx-server execution file"
+  :type '(file :must-match t)
+  :group 'mdx-dictionary)
+
 (defcustom mdx-dictionary-python "python3"
   "python used to start mdx-server"
   :type 'string
   :group 'mdx-dictionary)
 
-(eval-when-compile
-  (defcustom mdx-dictionary-server-file (concat (file-name-directory buffer-file-name) "mdx-server/mdx_server.py")
-    "mdx-server execution file"
-    :type '(file :must-match t)
-    :group 'mdx-dictionary))
-
-;; (setq mdx-dictionary-server-file "/home/lujun9972/github/mdx-server/mdx_server.py")
 (defvar mdx-dictionary-server-process nil)
 
 ;;;###autoload
