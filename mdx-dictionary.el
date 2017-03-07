@@ -96,3 +96,6 @@
 
 
 
+
+(provide 'mdx-dictionary)
+;; mdx-dictionary.el ends here
