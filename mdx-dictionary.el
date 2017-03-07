@@ -46,17 +46,20 @@
 ;; (setq mdx-dictionary-server-file "/home/lujun9972/github/mdx-server/mdx_server.py")
 (defvar mdx-dictionary-server-process nil)
 
+;;;###autoload
 (defun mdx-dictionary-start-server (mdx-file)
   (interactive "fPlease choose a mdx-file:")
   (mdx-dictionary-stop-server)
   (setq mdx-dictionary-server-process (start-process "mdx-dictionary-server" "*mdx-dictionary-server*" mdx-dictionary-python mdx-dictionary-server-file mdx-file)))
 
+;;;###autoload
 (defun mdx-dictionary-stop-server ()
   (interactive)
   (when mdx-dictionary-server-process
     (delete-process mdx-dictionary-server-process)
     (setq mdx-dictionary-server-process nil)))
 
+;;;###autoload
 (defun mdx-dictionary-request (word)
   (let* ((url (format "http://localhost:8000/%s" (url-hexify-string word)))
          (response (request url
