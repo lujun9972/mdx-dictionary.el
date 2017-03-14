@@ -38,7 +38,7 @@
 
 (defcustom mdx-dictionary-server-file (concat (file-name-directory buffer-file-name) "mdx-server/mdx_server.py")
   "mdx-server execution file"
-  :type '(file :must-match t))
+  :type 'file)
 
 (defcustom mdx-dictionary-python "python3"
   "python used to start mdx-server"
