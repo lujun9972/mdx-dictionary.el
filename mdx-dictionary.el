@@ -36,9 +36,12 @@
   :group 'tools
   :link '(url-link :tag "Github" "https://github.com/lujun9972/mdx-dictionary.el"))
 
-(defcustom mdx-dictionary-server-file (concat (file-name-directory buffer-file-name) "mdx-server/mdx_server.py")
+(defcustom mdx-dictionary-server-file "/home/lujun9972/github/mdx-dictionary/mdx-server/mdx_server.py"
   "mdx-server execution file"
   :type 'file)
+;; (defcustom mdx-dictionary-server-file (concat (file-name-directory buffer-file-name) "mdx-server/mdx_server.py")
+;;   "mdx-server execution file"
+;;   :type 'file)
 
 (defcustom mdx-dictionary-python "python3"
   "python used to start mdx-server"
