@@ -1,4 +1,4 @@
-;;; mdx-dictionary.el --- MDX Dictionary interface for Emacs
+;;; mdx-dictionary.el --- MDX Dictionary interface for Emacs  -*- lexical-binding: t; -*-
 
 ;; Copyright © 2017 DarkSun
 
