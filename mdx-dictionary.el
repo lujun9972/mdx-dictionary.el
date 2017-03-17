@@ -39,7 +39,7 @@
 ;; (defcustom mdx-dictionary-server-file "/home/lujun9972/github/mdx-dictionary/mdx-server/mdx_server.py"
 ;;   "mdx-server execution file"
 ;;   :type 'file)
-(defcustom mdx-dictionary-server-file (concat (file-name-directory (or byte-compile-current-buffer buffer-file-name)) "mdx-server/mdx_server.py")
+(defcustom mdx-dictionary-server-file (concat (file-name-directory (or load-file-name byte-compile-current-buffer buffer-file-name)) "mdx-server/mdx_server.py")
   "mdx-server execution file"
   :type '(file :must-match t))
 
