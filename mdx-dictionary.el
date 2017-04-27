@@ -47,13 +47,18 @@
   "python used to start mdx-server"
   :type 'string)
 
+(defcustom mdx-dictionary-server-args nil
+  "Args to launch mdx dictionary server"
+  :type 'list)
+
 (defvar mdx-dictionary-server-process nil)
 
 ;;;###autoload
 (defun mdx-dictionary-start-server (mdx-file)
   (interactive "fPlease choose a mdx-file:")
   (mdx-dictionary-stop-server)
-  (setq mdx-dictionary-server-process (start-process "mdx-dictionary-server" "*mdx-dictionary-server*" mdx-dictionary-python mdx-dictionary-server-file mdx-file)))
+  (let ((args `(,@mdx-dictionary-server-args ,mdx-file)))
+    (setq mdx-dictionary-server-process (apply #'start-process "mdx-dictionary-server" "*mdx-dictionary-server*" mdx-dictionary-python mdx-dictionary-server-file args))))
 
 ;;;###autoload
 (defun mdx-dictionary-stop-server ()
