@@ -49,7 +49,7 @@
 
 (defcustom mdx-dictionary-server-args nil
   "Args to launch mdx dictionary server"
-  :type 'list)
+  :type '(repeat string))
 
 (defvar mdx-dictionary-server-process nil)
 
