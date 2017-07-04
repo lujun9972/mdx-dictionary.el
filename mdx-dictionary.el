@@ -87,7 +87,9 @@
   "function used to format dom into string")
 
 (defcustom mdx-dictionary-display-before-functions nil
-  "List of hook functions run before display the dictionary content."
+  "List of hook functions run before display the dictionary content.
+
+The functions should accept two arguments:the word to be queried and the dictionary content."
   :type 'hook)
 
 (defun mdx-dictionary-query (&optional word)
@@ -97,7 +99,7 @@
                    (word-at-point))) 
          (response (mdx-dictionary-request word))
          (content (when response
-                    (funcall mdx-dictionary-format-dom-function response))))
+                    (funcall mdx-dictionary-format-dom-function word response))))
     (if content
         (progn
           (run-hook-with-args 'mdx-dictionary-display-before-functions content)
