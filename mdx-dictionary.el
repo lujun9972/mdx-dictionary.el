@@ -99,10 +99,10 @@ The functions should accept two arguments:the word to be queried and the diction
                    (word-at-point))) 
          (response (mdx-dictionary-request word))
          (content (when response
-                    (funcall mdx-dictionary-format-dom-function word response))))
+                    (funcall mdx-dictionary-format-dom-function response))))
     (if content
         (progn
-          (run-hook-with-args 'mdx-dictionary-display-before-functions content)
+          (run-hook-with-args 'mdx-dictionary-display-before-functions word content)
           (popup-tip content))
       (setq word (read-string "该单词可能是变体,请输入词源(按C-g退出): " word))
       (mdx-dictionary-query word))))
