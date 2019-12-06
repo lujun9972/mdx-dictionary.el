@@ -82,17 +82,34 @@
                                         ))) ))
     (request-response-data response)))
 
-(defcustom mdx-dictionary-format-dom-function (lambda (dom)
-                                       (with-temp-buffer
-                                         (shr-insert-document dom)
-                                         (buffer-substring-no-properties (point-min) (point-max))))
+(defcustom mdx-dictionary-parser #'mdx-dictionary--default-parser
   "function used to format dom into string")
 
-(defcustom mdx-dictionary-display-before-functions nil
-  "List of hook functions run before display the dictionary content.
 
-The functions should accept two arguments:the word to be queried and the dictionary content."
-  :type 'hook)
+(defun mdx-dictionary--default-parser (word dom)
+  "Default parser used to parse `DOM'"
+  (let ((expression word)
+        (glossary (with-temp-buffer
+                    (shr-insert-document dom)
+                    (buffer-substring-no-properties (point-min) (point-max)))))
+    `((expression . ,expression)
+      (glossary ,glossary))))
+
+;; (setq mdx-dictionary-parser #'mdx-dictionary--21世纪大英汉词典-parser)
+;; (mdx-dictionary--default-parser "dict" q)
+;; (mdx-dictionary--21世纪大英汉词典-parser "dict" q)
+
+(defun mdx-dictionary--21世纪大英汉词典-parser (word dom)
+  "The function used to parser 21世纪大英汉词典"
+  (let ((expression (dom-texts (car (dom-by-class dom "^return-phrase$"))))
+        (phonetic (dom-texts (car (dom-by-class dom "^phone$"))))
+        (glossary (mapcar (lambda (dom)
+                            (nth 2 (dom-strings dom)))
+                          (dom-by-class q "^tr$"))))
+    `((expression . ,expression)
+      (us-phonetic . ,phonetic)
+      (glossary . ,glossary))))
+
 
 (defun mdx-dictionary-query (&optional word)
   (interactive)
@@ -101,11 +118,16 @@ The functions should accept two arguments:the word to be queried and the diction
                    (word-at-point))) 
          (response (mdx-dictionary-request word))
          (content (when response
-                    (funcall mdx-dictionary-format-dom-function response))))
+                    (funcall mdx-dictionary-parser word response))))
     (if content
-        (progn
-          (run-hook-with-args 'mdx-dictionary-display-before-functions word content)
-          (popup-tip content))
+        (let ((expression (cdr (assoc 'expression content)))
+              (us-phonetic (cdr (assoc 'us-phonetic content)))
+              (uk-phonetic (cdr (assoc 'uk-phonetic content)))
+              (glossary (mapconcat #'identity (cdr (assoc 'glossary content)) "\n")))
+          (popup-tip (format "%s(%s)\n%s"
+                             expression
+                             (or us-phonetic uk-phonetic "")
+                             glossary)))
       (setq word (read-string "该单词可能是变体,请输入词源(按C-g退出): " word))
       (mdx-dictionary-query word))))
 
