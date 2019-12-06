@@ -95,30 +95,29 @@
     `((expression . ,expression)
       (glossary ,glossary))))
 
-;; (setq mdx-dictionary-parser #'mdx-dictionary--21世纪大英汉词典-parser)
-;; (mdx-dictionary--default-parser "dict" q)
-;; (mdx-dictionary--21世纪大英汉词典-parser "dict" q)
-
 (defun mdx-dictionary--21世纪大英汉词典-parser (word dom)
   "The function used to parser 21世纪大英汉词典"
   (let ((expression (dom-texts (car (dom-by-class dom "^return-phrase$"))))
         (phonetic (dom-texts (car (dom-by-class dom "^phone$"))))
         (glossary (mapcar (lambda (dom)
                             (nth 2 (dom-strings dom)))
-                          (dom-by-class q "^tr$"))))
+                          (dom-by-class dom "^tr$"))))
     `((expression . ,expression)
       (us-phonetic . ,phonetic)
       (glossary . ,glossary))))
 
+(defun mdx-dictionary-searcher (word)
+  "Function used to search `WORD' meanings"
+  (let* ((response (mdx-dictionary-request word)))
+    (when response
+      (funcall mdx-dictionary-parser word response))))
 
 (defun mdx-dictionary-query (&optional word)
   (interactive)
   (let* ((word (or word
                    (and (use-region-p) (buffer-substring-no-properties (region-beginning) (region-end)))
                    (word-at-point))) 
-         (response (mdx-dictionary-request word))
-         (content (when response
-                    (funcall mdx-dictionary-parser word response))))
+         (content (mdx-dictionary-searcher word)))
     (if content
         (let ((expression (cdr (assoc 'expression content)))
               (us-phonetic (cdr (assoc 'us-phonetic content)))
