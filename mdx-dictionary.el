@@ -71,16 +71,26 @@
 
 ;;;###autoload
 (defun mdx-dictionary-request (word)
+  "Function used to request `WORD' meanings.
+
+It return an alist looks like
+    `((expression . ,expression)
+      (us-phonetic . ,us-phonetic)
+      (uk-phonetic . ,uk-phonetic)
+      (glossary . ,glossary))"
   (let* ((url (format "http://localhost:8000/%s" (url-hexify-string word)))
          (response (request url
-                            :sync t
-                            :parser (lambda ()
-                                      (let ((html (decode-coding-string (buffer-string) 'utf-8)))
-                                        (erase-buffer)
-                                        (insert html)
-                                        (libxml-parse-html-region (point-min) (point-max))
-                                        ))) ))
-    (request-response-data response)))
+                     :sync t
+                     :parser (lambda ()
+                               (let ((html (decode-coding-string (buffer-string) 'utf-8)))
+                                 (erase-buffer)
+                                 (insert html)
+                                 (libxml-parse-html-region (point-min) (point-max))))))
+         (response-data (request-response-data response)))
+    (if response-data
+        (funcall mdx-dictionary-parser word response-data)
+      (setq word (read-string "该单词可能是变体,请输入词源(按C-g退出): " word))
+      (mdx-dictionary-request word))))
 
 (defcustom mdx-dictionary-parser #'mdx-dictionary--default-parser
   "function used to format dom into string")
@@ -97,38 +107,40 @@
 
 (defun mdx-dictionary--21世纪大英汉词典-parser (word dom)
   "The function used to parser 21世纪大英汉词典"
-  (let ((expression (dom-texts (car (dom-by-class dom "^return-phrase$"))))
-        (phonetic (dom-texts (car (dom-by-class dom "^phone$"))))
-        (glossary (mapcar (lambda (dom)
-                            (nth 2 (dom-strings dom)))
-                          (dom-by-class dom "^tr$"))))
+  (setq q dom)
+  (let* ((expression (dom-texts (car (dom-by-class dom "^return-phrase$"))))
+         (phonetic (dom-texts (car (dom-by-class dom "^phone$"))))
+         (trs-doms (dom-by-class dom "^trs$"))
+         (glossary (mapcan (lambda (trs-dom)
+                        (let* ((pos-dom (car (dom-by-class trs-dom "^pos$")))
+                               (pos (dom-texts pos-dom))
+                               (tr-doms (dom-by-class trs-dom "^tr$"))
+                               (trs (mapcar (lambda (tr-dom)
+                                                  (let ((l-dom (car (dom-by-class tr-dom "l"))))
+                                                    (last (dom-strings l-dom))))
+                                                tr-doms)))
+                          (mapcar (lambda (tr)
+                                    (format "%s %s" pos tr))
+                                  trs)))
+                      trs-doms)))
     `((expression . ,expression)
       (us-phonetic . ,phonetic)
       (glossary . ,glossary))))
-
-(defun mdx-dictionary-searcher (word)
-  "Function used to search `WORD' meanings"
-  (let* ((response (mdx-dictionary-request word)))
-    (when response
-      (funcall mdx-dictionary-parser word response))))
 
 (defun mdx-dictionary-query (&optional word)
   (interactive)
   (let* ((word (or word
                    (and (use-region-p) (buffer-substring-no-properties (region-beginning) (region-end)))
                    (word-at-point))) 
-         (content (mdx-dictionary-searcher word)))
-    (if content
-        (let ((expression (cdr (assoc 'expression content)))
-              (us-phonetic (cdr (assoc 'us-phonetic content)))
-              (uk-phonetic (cdr (assoc 'uk-phonetic content)))
-              (glossary (mapconcat #'identity (cdr (assoc 'glossary content)) "\n")))
-          (popup-tip (format "%s(%s)\n%s"
-                             expression
-                             (or us-phonetic uk-phonetic "")
-                             glossary)))
-      (setq word (read-string "该单词可能是变体,请输入词源(按C-g退出): " word))
-      (mdx-dictionary-query word))))
+         (content (mdx-dictionary-request word))
+         (expression (cdr (assoc 'expression content)))
+         (us-phonetic (cdr (assoc 'us-phonetic content)))
+         (uk-phonetic (cdr (assoc 'uk-phonetic content)))
+         (glossary (mapconcat #'identity (cdr (assoc 'glossary content)) "\n")))
+    (popup-tip (format "%s(%s)\n%s"
+                       expression
+                       (or us-phonetic uk-phonetic "")
+                       glossary))))
 
 
 
