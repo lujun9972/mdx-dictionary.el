@@ -117,7 +117,7 @@ It return an alist looks like
                                (tr-doms (dom-by-class trs-dom "^tr$"))
                                (trs (mapcar (lambda (tr-dom)
                                                   (let ((l-dom (car (dom-by-class tr-dom "l"))))
-                                                    (last (dom-strings l-dom))))
+                                                    (car (last (dom-strings l-dom)))))
                                                 tr-doms)))
                           (mapcar (lambda (tr)
                                     (format "%s %s" pos tr))
