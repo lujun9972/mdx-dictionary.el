@@ -98,7 +98,7 @@ It return an alist looks like
       (mdx-dictionary-request word))))
 
 (defcustom mdx-dictionary-parsers '(("21世纪大英汉词典.mdx" . mdx-dictionary--21世纪大英汉词典-parser))
-  "function used to format dom into string")
+  "functions used to parse dom in different mdx files")
 
 (defun mdx-dictionary-get-parser ()
   "return the function used to parse the dom"
