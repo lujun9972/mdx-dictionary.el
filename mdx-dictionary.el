@@ -55,16 +55,21 @@
 
 (defvar mdx-dictionary-server-process nil)
 
+(defvar mdx-dictionary-mdx-file nil
+  "mdx file used as dictionary")
+
 ;;;###autoload
 (defun mdx-dictionary-start-server (mdx-file)
   (interactive "fPlease choose a mdx-file:")
   (mdx-dictionary-stop-server)
+  (setq mdx-dictionary-mdx-file mdx-file)
   (let ((args `(,@mdx-dictionary-server-args ,mdx-file)))
     (setq mdx-dictionary-server-process (apply #'start-process "mdx-dictionary-server" "*mdx-dictionary-server*" mdx-dictionary-python mdx-dictionary-server-file args))))
 
 ;;;###autoload
 (defun mdx-dictionary-stop-server ()
   (interactive)
+  (setq mdx-dictionary-mdx-file nil)
   (when mdx-dictionary-server-process
     (delete-process mdx-dictionary-server-process)
     (setq mdx-dictionary-server-process nil)))
@@ -88,13 +93,18 @@ It return an alist looks like
                                  (libxml-parse-html-region (point-min) (point-max))))))
          (response-data (request-response-data response)))
     (if response-data
-        (funcall mdx-dictionary-parser word response-data)
+        (funcall (mdx-dictionary-get-parser) word response-data)
       (setq word (read-string "该单词可能是变体,请输入词源(按C-g退出): " word))
       (mdx-dictionary-request word))))
 
-(defcustom mdx-dictionary-parser #'mdx-dictionary--default-parser
+(defcustom mdx-dictionary-parsers '(("21世纪大英汉词典.mdx" . mdx-dictionary--21世纪大英汉词典-parser))
   "function used to format dom into string")
 
+(defun mdx-dictionary-get-parser ()
+  "return the function used to parse the dom"
+  (let* ((mdx-file-name (file-name-nondirectory mdx-dictionary-mdx-file))
+         (parser (cdr (assoc mdx-file-name mdx-dictionary-parsers))))
+    (or parser 'mdx-dictionary--default-parser)))
 
 (defun mdx-dictionary--default-parser (word dom)
   "Default parser used to parse `DOM'"
