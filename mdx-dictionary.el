@@ -29,6 +29,7 @@
 (require 'shr)
 (require 'thingatpt)
 (require 'popup)
+(require 'subr-x)
 
 (defgroup mdx-dictionary nil
   "dictionary based on mdx-server"
@@ -83,19 +84,21 @@ It return an alist looks like
       (us-phonetic . ,us-phonetic)
       (uk-phonetic . ,uk-phonetic)
       (glossary . ,glossary))"
-  (let* ((url (format "http://localhost:8000/%s" (url-hexify-string word)))
-         (response (request url
-                     :sync t
-                     :parser (lambda ()
-                               (let ((html (decode-coding-string (buffer-string) 'utf-8)))
-                                 (erase-buffer)
-                                 (insert html)
-                                 (libxml-parse-html-region (point-min) (point-max))))))
-         (response-data (request-response-data response)))
-    (if response-data
-        (funcall (mdx-dictionary-get-parser) word response-data)
-      (setq word (read-string "该单词可能是变体,请输入词源(按C-g退出): " word))
-      (mdx-dictionary-request word))))
+  (let ((word (string-trim word)))
+    (when (and word (not (string-empty-p word)))
+      (let* ((url (format "http://localhost:8000/%s" (url-hexify-string word)))
+             (response (request url
+                         :sync t
+                         :parser (lambda ()
+                                   (let ((html (decode-coding-string (buffer-string) 'utf-8)))
+                                     (erase-buffer)
+                                     (insert html)
+                                     (libxml-parse-html-region (point-min) (point-max))))))
+             (response-data (request-response-data response)))
+        (if response-data
+            (funcall (mdx-dictionary-get-parser) word response-data)
+          (setq word (read-string "该单词可能是变体,请输入词源(按C-g或删除单词后回车退出): " word))
+          (mdx-dictionary-request word))))))
 
 (defcustom mdx-dictionary-parsers '(("21世纪大英汉词典.mdx" . mdx-dictionary--21世纪大英汉词典-parser))
   "functions used to parse dom in different mdx files")
@@ -147,10 +150,11 @@ It return an alist looks like
          (us-phonetic (cdr (assoc 'us-phonetic content)))
          (uk-phonetic (cdr (assoc 'uk-phonetic content)))
          (glossary (mapconcat #'identity (cdr (assoc 'glossary content)) "\n")))
-    (popup-tip (format "%s(%s)\n%s"
-                       expression
-                       (or us-phonetic uk-phonetic "")
-                       glossary))))
+    (when content
+      (popup-tip (format "%s(%s)\n%s"
+                         expression
+                         (or us-phonetic uk-phonetic "")
+                         glossary)))))
 
 
 
