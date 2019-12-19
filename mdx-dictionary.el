@@ -85,20 +85,22 @@ It return an alist looks like
       (uk-phonetic . ,uk-phonetic)
       (glossary . ,glossary))"
   (let ((word (string-trim word)))
-    (when (and word (not (string-empty-p word)))
-      (let* ((url (format "http://localhost:8000/%s" (url-hexify-string word)))
-             (response (request url
-                         :sync t
-                         :parser (lambda ()
-                                   (let ((html (decode-coding-string (buffer-string) 'utf-8)))
-                                     (erase-buffer)
-                                     (insert html)
-                                     (libxml-parse-html-region (point-min) (point-max))))))
-             (response-data (request-response-data response)))
-        (if response-data
-            (funcall (mdx-dictionary-get-parser) word response-data)
-          (setq word (read-string "该单词可能是变体,请输入词源(按C-g或删除单词后回车退出): " word))
-          (mdx-dictionary-request word))))))
+    (let* ((url (format "http://localhost:8000/%s" (url-hexify-string word)))
+           (response (request url
+                       :sync t
+                       :parser (lambda ()
+                                 (let ((html (decode-coding-string (buffer-string) 'utf-8)))
+                                   (erase-buffer)
+                                   (insert html)
+                                   (libxml-parse-html-region (point-min) (point-max))))))
+           (response-data (request-response-data response)))
+      (if response-data
+          (funcall (mdx-dictionary-get-parser) word response-data)
+        (let ((inhibit-quit t))
+          (with-local-quit
+            (setq word (read-string "该单词可能是变体,请输入词源(按C-g退出): " word))
+            (mdx-dictionary-request word))
+          (setq quit-flag nil))))))
 
 (defcustom mdx-dictionary-parsers '(("21世纪大英汉词典.mdx" . mdx-dictionary--21世纪大英汉词典-parser))
   "functions used to parse dom in different mdx files")
